@@ -1,0 +1,43 @@
+{
+  "name": "vite-plugin-mock-proxy",
+  "version": "1.0.0",
+  "description": "Vite插件，提供接口请求拦截和mock数据",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "vite-plugin",
+    "mock",
+    "proxy"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@langchain/core": "^0.3.46",
+    "@langchain/langgraph": "^0.2.65",
+    "@langchain/mcp-adapters": "^0.4.2",
+    "@langchain/openai": "^0.5.6",
+    "express": "^5.1.0",
+    "http-proxy-middleware": "^3.0.5",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/connect": "^3.4.38",
+    "@types/express": "^5.0.1",
+    "@types/http-proxy": "^1.17.16",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3"
+  },
+  "peerDependencies": {
+    "vite": "^4.0.0 || ^5.0.0"
+  }
+}
