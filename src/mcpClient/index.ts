@@ -98,7 +98,7 @@ export class LangchainClient {
     }
     // Create the React agent
     const tools = await this.client.getTools();
-    logger.info(`mcp获取到的工具: ${tools.map(tool => tool.name)}`);
+    logger.debug(`mcp获取到的工具: ${tools.map(tool => tool.name)}`);
     this.agent = createReactAgent({
       llm: this.model,
       tools,
@@ -125,7 +125,7 @@ export class LangchainClient {
           handleToolEnd: (output: any) => {
             logger.debug('Agent tool执行结束', { output });
           },
-          handleLLMStart: (llm: any, prompts: any) => {
+          handleLLMStart: (_llm: any, prompts: any) => {
             logger.debug('Agent LLM开始执行', { prompts: prompts.slice(0, 50) + '...' });
           },
           handleLLMEnd: (output: any) => {

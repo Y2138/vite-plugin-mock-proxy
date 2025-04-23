@@ -160,20 +160,10 @@ export class ProxyServer {
                 });
                 res.end(JSON.stringify(mockData));
                 logger.debug('成功发送 mock 数据响应');
+                return;
               } catch (error) {
                 logger.error('生成 mock 数据失败', { error });
-                
-                // 发送错误响应
-                (res as ServerResponse).writeHead(500, {
-                  'Content-Type': 'application/json',
-                  'X-Mock-Error': 'true'
-                });
-                res.end(JSON.stringify({ 
-                  code: -1, 
-                  message: "生成 mock 数据失败" 
-                }));
               }
-              return;
             } else {
               // 若正常响应，则删除缓存
               this.mockDataCache.delete(path);
