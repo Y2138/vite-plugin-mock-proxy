@@ -14,14 +14,15 @@ export class LangchainClient {
   private client: MultiServerMCPClient;
   private model: ChatOpenAI;
   private agent: ReturnType<typeof createReactAgent> | null = null;
-  
+  private debug: boolean;
   // 单例实例
   private static instance: LangchainClient | null = null;
 
   /**
    * 私有构造函数，防止外部直接创建实例
    */
-  private constructor() {
+  private constructor({ debug = false }: { debug?: boolean } = {}) {
+    this.debug = debug;
     // Create client and connect to server
     this.client = new MultiServerMCPClient({
       // Global tool configuration options
@@ -54,11 +55,11 @@ export class LangchainClient {
     // // Create an OpenAI model
     this.model = new ChatOpenAI({
       // modelName: "Qwen/QwQ-32B",
-      modelName: process.env.AI_MODEL || "Qwen/QwQ-32B",
+      modelName: process.env.AI_MODEL,
       temperature: 0,
       configuration: {
-        baseURL: process.env.AI_SERVICE_URL || "https://api.siliconflow.cn/v1",
-        apiKey: process.env.OPENAI_API_KEY || "sk-rlcebhmzzznirhwiijsssfktvmsvsmtkttftyjzouvuzvisb",
+        baseURL: process.env.AI_SERVICE_URL,
+        apiKey: process.env.OPENAI_API_KEY,
       },
     });
     
@@ -68,9 +69,9 @@ export class LangchainClient {
   /**
    * 获取 LangchainClient 单例实例
    */
-  public static getInstance(): LangchainClient {
+  public static getInstance({ debug = false }: { debug?: boolean } = {}): LangchainClient {
     if (!LangchainClient.instance) {
-      LangchainClient.instance = new LangchainClient();
+      LangchainClient.instance = new LangchainClient({ debug });
     }
     return LangchainClient.instance;
   }
@@ -97,7 +98,7 @@ export class LangchainClient {
     }
     // Create the React agent
     const tools = await this.client.getTools();
-    logger.info(`mcp获取到的工具: ${tools}`);
+    logger.info(`mcp获取到的工具: ${tools.map(tool => tool.name)}`);
     this.agent = createReactAgent({
       llm: this.model,
       tools,
@@ -107,7 +108,35 @@ export class LangchainClient {
 
   async invoke(input: UpdateType<any>) {
     const agent = await this.getAgent();
-    const apiResult = await agent.invoke(input);
+    let apiResult;
+    if (this.debug) {
+      // 添加回调函数获取执行过程信息
+      const callbacks = [
+        {
+          handleChainStart: (chain: any, inputs: any) => {
+            logger.debug(`Agent chain开始执行: ${chain.id}`, { inputs });
+          },
+          handleChainEnd: (outputs: any) => {
+            logger.debug('Agent chain执行结束', { outputs });
+          },
+          handleToolStart: (tool: any, input: any) => {
+            logger.debug(`Agent tool开始执行: ${tool.name}`, { input });
+          },
+          handleToolEnd: (output: any) => {
+            logger.debug('Agent tool执行结束', { output });
+          },
+          handleLLMStart: (llm: any, prompts: any) => {
+            logger.debug('Agent LLM开始执行', { prompts: prompts.slice(0, 50) + '...' });
+          },
+          handleLLMEnd: (output: any) => {
+            logger.debug('Agent LLM执行结束', { output });
+          }
+        }
+      ];
+      apiResult = await agent.invoke(input, { callbacks });
+    } else {
+      apiResult = await agent.invoke(input);
+    }
 
     return dealWithApiResult(apiResult);
   }

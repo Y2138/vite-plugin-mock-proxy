@@ -53,6 +53,10 @@ export default function vitePluginMockProxy(options: VitePluginMockProxyOptions 
       config = resolvedConfig;
       
       // 尝试从 Vite 环境变量中获取值，如果插件配置中没有提供
+      if (!finalOptions.env?.AI_MODEL && config.env.VITE_AI_MODEL) {
+        process.env.AI_MODEL = config.env.VITE_AI_MODEL;
+        logger.info('从 Vite 环境变量中获取 AI_MODEL');
+      }
       if (!finalOptions.env?.AI_SERVICE_URL && config.env.VITE_AI_SERVICE_URL) {
         process.env.AI_SERVICE_URL = config.env.VITE_AI_SERVICE_URL;
         logger.info('从 Vite 环境变量中获取 AI_SERVICE_URL');

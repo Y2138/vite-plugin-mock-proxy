@@ -35,10 +35,12 @@ export default defineConfig({
       port: 7171, // 代理服务器端口，默认为 7171
       enable: true, // 是否启用插件，默认为 true
       statusCheck: {
-        readyRange: [200, 299], // 认为接口准备好的状态码范围，默认 [200, 299]
+        codes: [404], // 需要拦截的状态码 默认 404
+        methods: ['GET'], // 需要拦截的方法 默认 GET
       },
       // 环境变量配置（可选）
       env: {
+        AI_MODEL: 'your-model-name', // AI 模型名
         AI_SERVICE_URL: 'https://your-ai-service-url', // AI 服务 URL
         OPENAI_API_KEY: 'your-openai-api-key', // OpenAI API 密钥
       },
@@ -74,7 +76,8 @@ export default defineConfig({
 |------|------|--------|------|
 | port | number | 7171 | 代理服务器端口 |
 | enable | boolean | true | 是否启用插件 |
-| statusCheck.readyRange | [number, number] | [200, 299] | 认为接口准备好的状态码范围 |
+| statusCheck.codes | number[] | [404] | 认为接口准备好的状态码范围 |
+| statusCheck.methods | string[] | ['GET'] | 认为接口准备好的状态码范围 |
 | env | object | {} | 环境变量配置，用于设置插件运行所需的环境变量 |
 | env.AI_SERVICE_URL | string | undefined | AI 服务 URL |
 | env.OPENAI_API_KEY | string | undefined | OpenAI API 密钥 |
@@ -88,6 +91,7 @@ export default defineConfig({
    ```js
    mockProxy({
      env: {
+       AI_MODEL: 'your_model_name',
        AI_SERVICE_URL: 'https://your-ai-service-url',
        OPENAI_API_KEY: 'your-openai-api-key',
      }
@@ -98,6 +102,7 @@ export default defineConfig({
    如果你在 `.env` 文件中定义了以 `VITE_` 开头的环境变量，插件会自动尝试使用它们：
    ```
    # .env 文件
+   VITE_AI_MODEL=your_model_name,
    VITE_AI_SERVICE_URL=https://your-ai-service-url
    VITE_OPENAI_API_KEY=your-openai-api-key
    ```
@@ -105,6 +110,7 @@ export default defineConfig({
 3. **直接在环境中设置**：
    你也可以在启动 Vite 开发服务器之前，通过操作系统环境变量或命令行设置：
    ```bash
+   export VITE_AI_MODEL=your_model_name,
    export AI_SERVICE_URL=https://your-ai-service-url
    export OPENAI_API_KEY=your-openai-api-key
    npm run dev

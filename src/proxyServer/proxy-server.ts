@@ -22,8 +22,10 @@ export interface ProxyServerConfig {
   proxyConfigs: ProxyConfig;
   cacheExpire: number;
   statusCheck: {
-    readyRange: [number, number];
+    codes: number[];
+    methods: string[];
   };
+  debug: boolean;
 }
 
 export class ProxyServer {
@@ -107,35 +109,37 @@ export class ProxyServer {
             }
           },
           proxyReq: (proxyReq, req) => {
+            const location = new URL(req.url || '', `http://${req.headers.host}`);
             // 请求目标前记录详情
             logger.debug(`代理请求: ${req.method} ${req.url} -> ${target}`, {
-              originalPath: req.url,
-              targetPath: proxyReq.path
+              originalPath: location.href,
+              targetPath: proxyReq.host + proxyReq.path
             });
           },
           proxyRes: async (proxyRes, req, res) => {
-            const statusCode = proxyRes.statusCode || 500;
-            const { readyRange } = statusCheck;
-            const path = new URL(req.url || '', `http://${req.headers.host}`).pathname;
+            const statusCode = proxyRes.statusCode || 404;
+            const { codes: checkCodes, methods: checkMethods } = statusCheck;
+            const location = new URL(req.url || '', `http://${req.headers.host}`);
+            const path = location.pathname;
             
             // 记录代理响应
-            logger.debug(`代理响应: ${req.method} ${req.url}, 状态码: ${statusCode}`, {
+            logger.debug(`代理响应: ${req.method} ${location.href}, 状态码: ${statusCode}`, {
               headers: proxyRes.headers,
               statusMessage: proxyRes.statusMessage
             });
             
             // 判断状态码是否在准备好的范围内
-            const isReady = statusCode >= readyRange[0] && statusCode <= readyRange[1];
+            const needMock = checkCodes.includes(statusCode) && checkMethods.includes(req.method || 'GET');
             
-            if (!isReady) {
-              logger.info(`拦截非就绪接口: ${req.method} ${req.url}, 原状态码: ${statusCode}`);
+            if (needMock) {
+              logger.info(`拦截非就绪接口: ${req.method} ${location.href}, 原状态码: ${statusCode}`);
               
               // 消费原始响应数据，防止内存泄漏
               proxyRes.resume();
 
               // 开始生成 mock 数据
               logger.debug('开始生成 mock 数据');
-              const mcpClient = LangchainClient.getInstance();
+              const mcpClient = LangchainClient.getInstance({ debug: this.config.debug });
               
               try {
                 // 在返回响应前完成异步操作
@@ -250,7 +254,8 @@ export function createProxyServer(
 
   // 处理状态码检查配置
   const defaultStatusCheck = {
-    readyRange: [200, 299] as [number, number],
+    codes: [404] as number[],
+    methods: ['GET'] as string[],
   };
 
   const finalStatusCheck = {
@@ -270,5 +275,6 @@ export function createProxyServer(
     cacheExpire: options.cacheExpire || 30 * 60 * 1000,
     proxyConfigs: viteProxyConfig,
     statusCheck: finalStatusCheck,
+    debug: options.debug || false,
   });
 } 

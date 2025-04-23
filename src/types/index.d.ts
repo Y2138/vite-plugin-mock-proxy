@@ -16,16 +16,27 @@ interface VitePluginMockProxyOptions {
    */
   statusCheck?: {
     /**
-     * 认为接口准备好的状态码范围
-     * @default [200, 299]
+     * 需要拦截的状态码
+     * @default [404]
      */
-    readyRange?: [number, number];
+    codes?: number[];
+    /**
+     * 需要拦截的方法
+     * @default ['GET']
+     */
+    methods?: string[];
   };
 
   /**
    * 环境变量配置
    */
   env?: {
+    /**
+     * AI 模型
+     * @default 'gpt-4o-mini'
+     */
+    AI_MODEL?: string;
+
     /**
      * AI 服务 URL
      */
