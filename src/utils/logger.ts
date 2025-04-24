@@ -13,8 +13,8 @@ const customFormat = winston.format.printf(({ level, message, timestamp, ...meta
 });
 
 const logger = winston.createLogger({
-  // 使用环境变量设置日志级别，默认为 debug 以便于调试
-  level: process.env.LOG_LEVEL || 'debug',
+  // 使用环境变量设置日志级别，默认为 info
+  level: process.env.LOG_LEVEL || 'info',
   format: winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
     winston.format.errors({ stack: true }),
@@ -47,20 +47,10 @@ export function enableDebugLogs() {
   logger.debug('调试日志已启用');
 }
 
-// 添加工具方法：添加请求调试日志
-export function logRequest(req: any, message: string) {
-  logger.debug(`${message} - ${req.method} ${req.url}`, {
-    headers: req.headers,
-    query: req.query,
-    params: req.params
-  });
-}
-
-// 添加工具方法：添加响应调试日志
-export function logResponse(res: any, message: string) {
-  logger.debug(`${message} - status: ${res.statusCode}`, {
-    headers: res.getHeaders ? res.getHeaders() : res.headers
-  });
+// 添加工具方法：禁用调试日志
+export function disableDebugLogs() {
+  logger.level = 'info';
+  logger.info('调试日志已禁用，仅显示info级别及以上日志');
 }
 
 export { logger }; 

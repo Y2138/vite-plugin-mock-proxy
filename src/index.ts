@@ -1,5 +1,5 @@
 import { Plugin, ResolvedConfig } from 'vite';
-import { logger, enableDebugLogs } from './utils/logger';
+import { logger, enableDebugLogs, disableDebugLogs } from './utils/logger';
 import { ProxyServer, createProxyServer } from './proxyServer/proxy-server';
 import { VitePluginMockProxyOptions } from './types';
 
@@ -41,6 +41,9 @@ export default function vitePluginMockProxy(options: VitePluginMockProxyOptions 
     logger.info('调试模式已启用');
     // 设置环境变量 LOG_LEVEL 为 debug
     process.env.LOG_LEVEL = 'debug';
+  } else {
+    disableDebugLogs();
+    process.env.LOG_LEVEL = 'info';
   }
   
   // 设置环境变量
@@ -102,7 +105,6 @@ export default function vitePluginMockProxy(options: VitePluginMockProxyOptions 
             
             // 关闭 Vite 的路径重写，由我们的代理服务器处理
             if (proxyOptions.rewrite) {
-              logger.debug(`将使用代理服务器处理路径重写规则: ${key}`);
               proxyOptions.rewrite = undefined;
             }
           }

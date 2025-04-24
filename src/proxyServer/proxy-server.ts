@@ -69,11 +69,12 @@ export class ProxyServer {
     Object.keys(proxyConfigs).forEach((context) => {
       const options = proxyConfigs[context];
       const { target, rewrite, ...proxyOptions } = options;
-      
-      logger.debug(`设置代理路径 ${context} -> ${target}`, { 
-        rewrite: rewrite ? true : false,
-        options: proxyOptions 
-      });
+      if (process.env.LOG_LEVEL === 'debug') {
+        logger.debug(`设置代理路径 ${context} -> ${target}`, { 
+          rewrite: rewrite ? true : false,
+          options: proxyOptions 
+        });
+      }
       
       const pathRewrite: Record<string, string> = {};
       if (rewrite) {
@@ -183,7 +184,6 @@ export class ProxyServer {
 
       // 注册中间件
       this.app.use(context, proxy);
-      logger.info(`代理配置已注册: ${context} -> ${target}`);
     });
   }
 
@@ -235,7 +235,9 @@ export function createProxyServer(
   viteProxyConfig: Record<string, any>,
   options: VitePluginMockProxyOptions
 ): ProxyServer {
-  logger.debug('创建代理服务器', { options });
+  if (process.env.LOG_LEVEL === 'debug') {
+    logger.debug('创建代理服务器', { options });
+  }
   
   const {
     port = 7171,
@@ -252,12 +254,13 @@ export function createProxyServer(
     ...defaultStatusCheck,
     ...statusCheck,
   };
-
-  logger.debug('代理服务器配置', { 
-    port, 
-    proxyConfigsCount: Object.keys(viteProxyConfig).length,
-    statusCheck: finalStatusCheck 
-  });
+  if (process.env.LOG_LEVEL === 'debug') {
+    logger.debug('代理服务器配置', { 
+      port, 
+      proxyConfigsCount: Object.keys(viteProxyConfig).length,
+      statusCheck: finalStatusCheck 
+    });
+  }
 
   // 创建代理服务器
   return new ProxyServer({

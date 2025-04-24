@@ -13,7 +13,9 @@ export class MemoryCache<T> {
    */
   constructor(ttl: number = 5 * 60 * 1000) {
     this.ttl = ttl;
-    logger.debug(`创建缓存实例，过期时间: ${ttl}ms`);
+    if (process.env.LOG_LEVEL === 'debug') {
+      logger.debug(`创建缓存实例，过期时间: ${ttl}ms`);
+    }
   }
 
   /**
@@ -98,6 +100,3 @@ export class MemoryCache<T> {
     }
   }
 }
-
-// 创建并导出一个默认的 mock 数据缓存实例
-export const mockDataCache = new MemoryCache<any>(30 * 60 * 1000); // 默认30分钟过期 
