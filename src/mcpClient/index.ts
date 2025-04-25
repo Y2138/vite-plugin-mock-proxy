@@ -1,6 +1,6 @@
 import { MultiServerMCPClient } from "@langchain/mcp-adapters";
 import { ChatOpenAI } from "@langchain/openai";
-import { UpdateType } from '@langchain/langgraph';
+import type { UpdateType } from '@langchain/langgraph';
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { logger } from "../utils/logger";
 
@@ -108,7 +108,7 @@ export class LangchainClient {
 
   async invoke(input: UpdateType<any>) {
     const agent = await this.getAgent();
-    let apiResult;
+    let apiResult: any;
     if (this.debug) {
       // 添加回调函数获取执行过程信息
       const callbacks = [
@@ -126,7 +126,7 @@ export class LangchainClient {
             logger.debug('Agent tool执行结束', { output });
           },
           handleLLMStart: (_llm: any, prompts: any) => {
-            logger.debug('Agent LLM开始执行', { prompts: prompts.slice(0, 50) + '...' });
+            logger.debug('Agent LLM开始执行', { prompts: `${prompts.slice(0, 50)}...` });
           },
           handleLLMEnd: (output: any) => {
             logger.debug('Agent LLM执行结束', { output });

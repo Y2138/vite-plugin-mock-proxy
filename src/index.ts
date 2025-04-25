@@ -1,7 +1,7 @@
-import { Plugin, ResolvedConfig } from 'vite';
+import type { Plugin, ResolvedConfig } from 'vite';
 import { logger, enableDebugLogs, disableDebugLogs } from './utils/logger';
-import { ProxyServer, createProxyServer } from './proxyServer/proxy-server';
-import { VitePluginMockProxyOptions } from './types';
+import type { ProxyServer,  } from './proxyServer/proxy-server';
+import { createProxyServer } from './proxyServer/proxy-server';
 
 /**
  * 设置环境变量
@@ -10,12 +10,12 @@ function setupEnvVariables(env?: Record<string, string | undefined>) {
   if (!env) return;
   
   // 将配置选项中的环境变量设置到 process.env 中
-  Object.entries(env).forEach(([key, value]) => {
+  for (const [key, value] of Object.entries(env)) {
     if (value !== undefined) {
       logger.debug(`设置环境变量: ${key}`);
       process.env[key] = value;
     }
-  });
+  }
 }
 
 /**
@@ -92,7 +92,7 @@ export default function vitePluginMockProxy(options: VitePluginMockProxyOptions 
         const proxyServerUrl = `http://localhost:${finalOptions.port}`;
         
         // 遍历代理配置，修改 target 为我们的代理服务器
-        Object.keys(proxyConfig).forEach((key) => {
+        for (const key of Object.keys(proxyConfig)) {
           const proxyOptions = proxyConfig[key];
           
           if (typeof proxyOptions === 'object') {
@@ -108,12 +108,12 @@ export default function vitePluginMockProxy(options: VitePluginMockProxyOptions 
               proxyOptions.rewrite = undefined;
             }
           }
-        });
+        }
       }
       
       try {
         // 启动代理服务器
-        proxyServer = createProxyServer(proxyConfig, finalOptions);
+        proxyServer = createProxyServer(proxyConfig as ProxyConfig, finalOptions);
         await proxyServer.start();
       } catch (error) {
         logger.error('启动代理服务器失败:', error);
@@ -131,5 +131,3 @@ export default function vitePluginMockProxy(options: VitePluginMockProxyOptions 
     },
   };
 }
-
-export type { VitePluginMockProxyOptions };

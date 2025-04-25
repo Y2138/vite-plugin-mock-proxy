@@ -28,6 +28,16 @@ interface VitePluginMockProxyOptions {
   };
 
   /**
+   * 需要拦截的请求路径
+   */
+  include?: (string | RegExp)[];
+
+  /**
+   * 需要拦截的请求路径
+   */
+  exclude?: (string | RegExp)[];
+
+  /**
    * 环境变量配置
    */
   env?: {
@@ -66,4 +76,13 @@ interface VitePluginMockProxyOptions {
   cacheExpire?: number;
 }
 
-export { VitePluginMockProxyOptions };
+
+interface ProxyConfig {
+  [key: string]: {
+    target: string;
+    changeOrigin?: boolean;
+    secure?: boolean;
+    rewrite?: (path: string) => string;
+    [key: string]: any;
+  };
+}

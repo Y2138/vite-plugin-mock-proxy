@@ -9,9 +9,9 @@ export class MemoryCache<T> {
 
   /**
    * 创建缓存实例
-   * @param ttl 缓存过期时间（毫秒），默认5分钟
+   * @param ttl 缓存过期时间（毫秒），默认30分钟
    */
-  constructor(ttl: number = 5 * 60 * 1000) {
+  constructor(ttl: number = 30 * 60 * 1000) {
     this.ttl = ttl;
     if (process.env.LOG_LEVEL === 'debug') {
       logger.debug(`创建缓存实例，过期时间: ${ttl}ms`);

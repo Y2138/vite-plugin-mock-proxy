@@ -1,12 +1,11 @@
 import express from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
-import { Server, ServerResponse } from 'http';
-import { VitePluginMockProxyOptions } from '../types';
+import type { Server, ServerResponse } from 'node:http';
 import { logger } from '../utils/logger';
 import { getMockDataByAi } from '../genMockData';
 import { LangchainClient } from '../mcpClient';
 import { MemoryCache } from '../utils/cache';
-
+import { isMatchUrl } from '../utils';
 interface ProxyConfig {
   [key: string]: {
     target: string;
@@ -20,12 +19,7 @@ interface ProxyConfig {
 export interface ProxyServerConfig {
   port: number;
   proxyConfigs: ProxyConfig;
-  cacheExpire: number;
-  statusCheck: {
-    codes: number[];
-    methods: string[];
-  };
-  debug: boolean;
+  pluginOptions: VitePluginMockProxyOptions;
 }
 
 export class ProxyServer {
@@ -37,7 +31,7 @@ export class ProxyServer {
   constructor(config: ProxyServerConfig) {
     this.config = config;
     this.app = express();
-    this.mockDataCache = new MemoryCache<any>(config.cacheExpire);
+    this.mockDataCache = new MemoryCache<any>(config.pluginOptions.cacheExpire);
     // 添加简单的请求日志中间件
     this.app.use((req, res, next) => {
       const startTime = Date.now();
@@ -63,15 +57,16 @@ export class ProxyServer {
   }
 
   private setupProxy() {
-    const { proxyConfigs, statusCheck } = this.config;
+    const { proxyConfigs, pluginOptions } = this.config;
+    const { statusCheck, debug } = pluginOptions;
     
     // 遍历代理配置
-    Object.keys(proxyConfigs).forEach((context) => {
+    for (const context of Object.keys(proxyConfigs)) {
       const options = proxyConfigs[context];
       const { target, rewrite, ...proxyOptions } = options;
       if (process.env.LOG_LEVEL === 'debug') {
         logger.debug(`设置代理路径 ${context} -> ${target}`, { 
-          rewrite: rewrite ? true : false,
+          rewrite: !!rewrite,
           options: proxyOptions 
         });
       }
@@ -80,7 +75,7 @@ export class ProxyServer {
       if (rewrite) {
         // 构造路径重写规则
         pathRewrite[`^${context}`] = rewrite(context).replace(/^\//, '');
-        logger.debug(`配置路径重写规则`, { rule: pathRewrite });
+        logger.debug("配置路径重写规则", { rule: pathRewrite });
       }
 
       // 创建代理中间件
@@ -109,42 +104,35 @@ export class ProxyServer {
               logger.error('处理代理错误时出错', { error: e });
             }
           },
-          proxyReq: (proxyReq, req) => {
-            const location = new URL(req.url || '', `http://${req.headers.host}`);
+          proxyReq: (proxyReq) => {
+            const location = new URL(proxyReq.path || '', `http://${proxyReq.getHeader('host')}`);
             // 请求目标前记录详情
-            logger.debug(`代理请求: ${req.method} ${req.url} -> ${target}`, {
-              originalPath: location.href,
-              targetPath: proxyReq.host + proxyReq.path
+            logger.debug('代理请求: path', {
+              originalPath: location.href
             });
           },
           proxyRes: async (proxyRes, req, res) => {
             const statusCode = proxyRes.statusCode || 404;
-            const { codes: checkCodes, methods: checkMethods } = statusCheck;
+            const { codes: checkCodes = [], methods: checkMethods = [] } = statusCheck || {};
             const location = new URL(req.url || '', `http://${req.headers.host}`);
             const path = location.pathname;
-            
             // 记录代理响应
-            logger.debug(`代理响应: ${req.method} ${location.href}, 状态码: ${statusCode}`, {
-              headers: proxyRes.headers,
-              statusMessage: proxyRes.statusMessage
-            });
+            logger.debug(`代理响应: ${req.method} ${location.href}, 状态码: ${statusCode}`);
             
             // 判断状态码是否在准备好的范围内
-            const needMock = checkCodes.includes(statusCode) && checkMethods.includes(req.method || 'GET');
+            const needMock = checkCodes.includes(statusCode) && checkMethods.includes(req.method || 'GET') && (isMatchUrl(pluginOptions.include || [], path) && !isMatchUrl(pluginOptions.exclude || [], path));
             
             if (needMock) {
-              logger.info(`拦截非就绪接口: ${req.method} ${location.href}, 原状态码: ${statusCode}`);
-              
               // 消费原始响应数据，防止内存泄漏
               proxyRes.resume();
 
               // 开始生成 mock 数据
               logger.debug('开始生成 mock 数据');
-              const mcpClient = LangchainClient.getInstance({ debug: this.config.debug });
+              const mcpClient = LangchainClient.getInstance({ debug });
               
               try {
                 // 在返回响应前完成异步操作
-                let mockData;
+                let mockData: any;
                 const cachedMockData = this.mockDataCache.get(path || '');
                 if (cachedMockData) {
                   mockData = cachedMockData;
@@ -171,7 +159,7 @@ export class ProxyServer {
             }
             
             // 对于正常响应，直接透传原始响应
-            logger.debug(`透传正常响应: ${req.method} ${req.url}, 状态码: ${statusCode}`);
+            logger.debug(`透传正常响应: ${req.method} ${location.href}, 状态码: ${statusCode}`);
             
             // 设置基本响应头
             (res as ServerResponse).writeHead(statusCode, proxyRes.headers);
@@ -184,7 +172,7 @@ export class ProxyServer {
 
       // 注册中间件
       this.app.use(context, proxy);
-    });
+    };
   }
 
   /**
@@ -232,7 +220,7 @@ export class ProxyServer {
  * 创建代理服务器实例
  */
 export function createProxyServer(
-  viteProxyConfig: Record<string, any>,
+  viteProxyConfig: ProxyConfig,
   options: VitePluginMockProxyOptions
 ): ProxyServer {
   if (process.env.LOG_LEVEL === 'debug') {
@@ -265,9 +253,7 @@ export function createProxyServer(
   // 创建代理服务器
   return new ProxyServer({
     port,
-    cacheExpire: options.cacheExpire || 30 * 60 * 1000,
     proxyConfigs: viteProxyConfig,
-    statusCheck: finalStatusCheck,
-    debug: options.debug || false,
+    pluginOptions: options,
   });
 } 
