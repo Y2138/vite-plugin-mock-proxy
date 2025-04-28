@@ -2,6 +2,7 @@ import type { Plugin, ResolvedConfig } from 'vite';
 import { logger, enableDebugLogs, disableDebugLogs } from './utils/logger';
 import type { ProxyServer,  } from './proxyServer/proxy-server';
 import { createProxyServer } from './proxyServer/proxy-server';
+import type { ProxyConfig, VitePluginMockProxyOptions } from './types';
 
 /**
  * 设置环境变量
@@ -33,6 +34,8 @@ export default function vitePluginMockProxy(options: VitePluginMockProxyOptions 
     env: options.env || {},
     debug: options.debug || false,
     cacheExpire: options.cacheExpire || 30 * 60 * 1000,
+    include: options.include || [],
+    exclude: options.exclude || [],
   };
   
   // 是否启用调试模式
@@ -87,9 +90,11 @@ export default function vitePluginMockProxy(options: VitePluginMockProxyOptions 
         return;
       }
       
+      const targetArr: string[] = [];
       // 更新 Vite 代理配置，指向我们的代理服务器
       if (typeof proxyConfig === 'object' && finalOptions.port) {
         const proxyServerUrl = `http://localhost:${finalOptions.port}`;
+        
         
         // 遍历代理配置，修改 target 为我们的代理服务器
         for (const key of Object.keys(proxyConfig)) {
@@ -99,6 +104,9 @@ export default function vitePluginMockProxy(options: VitePluginMockProxyOptions 
             // 备份原始目标，用于记录日志
             const originalTarget = proxyOptions.target;
             logger.info(`修改代理配置 ${key}: ${originalTarget} -> ${proxyServerUrl}`);
+            if (typeof originalTarget === 'string') {
+              targetArr.push(originalTarget);
+            }
             
             // 修改为指向我们的代理服务器
             proxyOptions.target = proxyServerUrl;
@@ -113,7 +121,7 @@ export default function vitePluginMockProxy(options: VitePluginMockProxyOptions 
       
       try {
         // 启动代理服务器
-        proxyServer = createProxyServer(proxyConfig as ProxyConfig, finalOptions);
+        proxyServer = createProxyServer(proxyConfig as ProxyConfig, targetArr, finalOptions);
         await proxyServer.start();
       } catch (error) {
         logger.error('启动代理服务器失败:', error);

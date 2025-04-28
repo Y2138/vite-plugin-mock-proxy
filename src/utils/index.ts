@@ -3,7 +3,7 @@
 export function isMatchUrl(patterns: (string | RegExp)[], str: string): boolean {
   return patterns.some(pattern => {
     if (typeof pattern === 'string') {
-      return pattern.indexOf(str) !== -1;
+      return pattern === str
     }
     return pattern.test(str);
   });

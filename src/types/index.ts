@@ -1,4 +1,4 @@
-interface VitePluginMockProxyOptions {
+export interface VitePluginMockProxyOptions {
   /**
    * 代理服务器端口
    * @default 7171
@@ -77,7 +77,7 @@ interface VitePluginMockProxyOptions {
 }
 
 
-interface ProxyConfig {
+export interface ProxyConfig {
   [key: string]: {
     target: string;
     changeOrigin?: boolean;

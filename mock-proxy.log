@@ -1,0 +1,37 @@
+{"level":"debug","message":"调试日志已启用","timestamp":"2025-04-28 15:53:43.585"}
+{"level":"info","message":"调试模式已启用","timestamp":"2025-04-28 15:53:43.587"}
+{"level":"info","message":"修改代理配置 /api: http://localhost:3000 -> http://localhost:6768","timestamp":"2025-04-28 15:53:43.739"}
+{"level":"debug","message":"创建缓存实例，过期时间: 1800000ms","timestamp":"2025-04-28 15:53:43.740"}
+{"level":"debug","message":"设置代理路径 /api -> http://localhost:3000","options":{"changeOrigin":true,"secure":false,"target":"http://localhost:6768"},"rewrite":false,"timestamp":"2025-04-28 15:53:43.740"}
+{"level":"debug","message":"pathRewrite","timestamp":"2025-04-28 15:53:43.740"}
+{"level":"info","message":"代理服务器已启动: http://localhost:6768","timestamp":"2025-04-28 15:53:43.741"}
+{"level":"debug","message":"代理响应: GET http://localhost:3000/column/column/index?page=1&pageSize=10&timestamp=1745826827506, 状态码: 404","timestamp":"2025-04-28 15:53:47.517"}
+{"exclude":[],"include":["/api/column/column/index"],"level":"debug","message":"代理path: /api/column/column/index, isInclude: true, isExclude: false","timestamp":"2025-04-28 15:53:47.517"}
+{"level":"debug","message":"开始生成 mock 数据","timestamp":"2025-04-28 15:53:47.517"}
+{"apiKey":"sk-rlcebhmzzznirhwiijsssfktvmsvsmtkttftyjzouvuzvisb","baseURL":"https://api.siliconflow.cn/v1","level":"info","message":"LangchainClient 实例已创建","modelName":"Qwen/Qwen2.5-Coder-32B-Instruct","timestamp":"2025-04-28 15:53:47.521"}
+{"level":"debug","message":"缓存未命中: /column/column/index","timestamp":"2025-04-28 15:53:47.522"}
+{"level":"debug","message":"mcp获取到的工具: read_project_oas_aye1qs,read_project_oas_ref_resources_aye1qs,refresh_project_oas_aye1qs,search_npm_packages","timestamp":"2025-04-28 15:53:51.592"}
+{"error":{"attemptNumber":1,"headers":{"connection":"keep-alive","content-length":"85","content-type":"application/json; charset=utf-8","date":"Mon, 28 Apr 2025 07:53:51 GMT"},"pregelTaskId":"c0557502-de29-57ad-b219-caf3f91985e9","retriesLeft":6,"status":400},"level":"error","message":"生成 mock 数据失败","timestamp":"2025-04-28 15:53:51.707"}
+{"level":"debug","message":"透传正常响应: GET http://localhost:3000/column/column/index?page=1&pageSize=10&timestamp=1745826827506, 状态码: 404","timestamp":"2025-04-28 15:53:51.707"}
+{"level":"debug","message":"调试日志已启用","timestamp":"2025-04-28 16:45:27.274"}
+{"level":"info","message":"调试模式已启用","timestamp":"2025-04-28 16:45:27.275"}
+{"level":"info","message":"修改代理配置 /api: http://localhost:3000 -> http://localhost:6768","timestamp":"2025-04-28 16:45:27.449"}
+{"level":"debug","message":"创建缓存实例，过期时间: 1800000ms","timestamp":"2025-04-28 16:45:27.450"}
+{"level":"debug","message":"设置代理路径 /api -> http://localhost:3000","options":{"changeOrigin":true,"secure":false,"target":"http://localhost:6768"},"rewrite":false,"timestamp":"2025-04-28 16:45:27.450"}
+{"level":"debug","message":"pathRewrite","timestamp":"2025-04-28 16:45:27.451"}
+{"level":"info","message":"代理服务器已启动: http://localhost:6768","timestamp":"2025-04-28 16:45:27.452"}
+{"level":"debug","message":"代理响应: GET http://localhost:3000/column/column/index?page=1&pageSize=10&timestamp=1745829937289, 状态码: 404","timestamp":"2025-04-28 16:45:37.304"}
+{"exclude":[],"include":["/api/column/column/index"],"level":"debug","message":"代理path: /api/column/column/index, isInclude: true, isExclude: false","timestamp":"2025-04-28 16:45:37.304"}
+{"level":"debug","message":"开始生成 mock 数据","timestamp":"2025-04-28 16:45:37.305"}
+{"apiKey":"sk-rlcebhmzzznirhwiijsssfktvmsvsmtkttftyjzouvuzvisb","baseURL":"https://api.siliconflow.cn/v1","level":"info","message":"LangchainClient 实例已创建","modelName":"deepseek-ai/DeepSeek-V3","timestamp":"2025-04-28 16:45:37.375"}
+{"level":"debug","message":"缓存未命中: /column/column/index","timestamp":"2025-04-28 16:45:37.377"}
+{"level":"debug","message":"mcp获取到的工具: read_project_oas_hkipn4,read_project_oas_ref_resources_hkipn4,refresh_project_oas_hkipn4,search_npm_packages","timestamp":"2025-04-28 16:45:41.751"}
+{"level":"debug","message":"本次AI调用次数 2","timestamp":"2025-04-28 16:45:58.868"}
+{"level":"debug","message":"AI返回结果:   请调用 API Docs tool，查找/column/column/index的接口信息  undefined","timestamp":"2025-04-28 16:45:58.868"}
+{"level":"debug","message":"AI返回结果:   为了查找 `/column/column/index` 的接口信息，我需要先读取“交流区后台php[bbs.qmniu]”的 OpenAPI Spec 文件内容，然后从中提取该路径的相关信息。以下是步骤：\n\n1. 首先调用 `read_project_oas_hkipn4` 工具读取 OpenAPI Spec 文件内容。\n2. 如果该路径是通过 `$ref` 引用的外部文件，可能需要进一步调用 `read_project_oas_ref_resources_hkipn4` 工具读取引用的文件内容。\n\n现在开始第一步，读取 OpenAPI Spec 文件内容。  ","timestamp":"2025-04-28 16:45:58.868"}
+{"level":"debug","message":"本次AI调用次数 2","timestamp":"2025-04-28 16:46:02.085"}
+{"level":"debug","message":"AI返回结果:   请按照以下接口文档 为了查找 `/column/column/index` 的接口信息，我需要先读取“交流区后台php[bbs.qmniu]”的 OpenAPI Spec 文件内容，然后从中提取该路径的相关信息。以下是步骤：\n\n1. 首先调用 `read_project_oas_hkipn4` 工具读取 OpenAPI Spec 文件内容。\n2. 如果该路径是通过 `$ref` 引用的外部文件，可能需要进一步调用 `read_project_oas_ref_resources_hkipn4` 工具读取引用的文件内容。\n\n现在开始第一步，读取 OpenAPI Spec 文件内容。 生成可以直接被JSON.parse的mock数据  undefined","timestamp":"2025-04-28 16:46:02.086"}
+{"level":"debug","message":"AI返回结果:     ","timestamp":"2025-04-28 16:46:02.086"}
+{"level":"error","message":"mockData 解析失败: SyntaxError: Unexpected end of JSON input","timestamp":"2025-04-28 16:46:02.086"}
+{"level":"debug","message":"成功生成 mock 数据","timestamp":"2025-04-28 16:46:02.086"}
+{"level":"debug","message":"成功发送 mock 数据响应","timestamp":"2025-04-28 16:46:02.087"}

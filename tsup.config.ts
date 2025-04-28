@@ -26,7 +26,7 @@ export default defineConfig({
   ],
   treeshake: true,
   minify: true,
-  target: 'node14',
+  target: 'node16',
   banner: {
     js: '/**\n * vite-plugin-mock-proxy\n * Vite插件，提供接口请求拦截和状态码检查功能\n * @license ISC\n */',
   },

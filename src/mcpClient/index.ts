@@ -4,9 +4,14 @@ import type { UpdateType } from '@langchain/langgraph';
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { logger } from "../utils/logger";
 
-function dealWithApiResult(aiResult: any) {
+function dealWithApiResult(aiResult: any, debug: boolean) {
+  if (debug) {
+    logger.debug(`本次AI调用次数 ${aiResult.messages.length}`);
+    for (const message of aiResult.messages) {
+      logger.debug(`AI返回结果:   ${message.content}`, {message});
+    }
+  }
   const lastContent = aiResult.messages[aiResult.messages.length - 1].content;
-  console.log(`调用mcp获取到的数据 第${aiResult.messages.length - 1}条数据 item.content====>: `, lastContent.substring(0, 20));
   return lastContent;
 }
 
@@ -63,7 +68,11 @@ export class LangchainClient {
       },
     });
     
-    logger.info('LangchainClient 实例已创建');
+    logger.info('LangchainClient 实例已创建', {
+      modelName: process.env.AI_MODEL,
+      baseURL: process.env.AI_SERVICE_URL,
+      apiKey: process.env.OPENAI_API_KEY,
+    });
   }
 
   /**
@@ -105,45 +114,18 @@ export class LangchainClient {
     });
     return this.agent;
   }
-
+  // TODO 调用agent只会执行一次
   async invoke(input: UpdateType<any>) {
     const agent = await this.getAgent();
-    let apiResult: any;
-    if (this.debug) {
-      // 添加回调函数获取执行过程信息
-      const callbacks = [
-        {
-          handleChainStart: (chain: any, inputs: any) => {
-            logger.debug(`Agent chain开始执行: ${chain.id}`, { inputs });
-          },
-          handleChainEnd: (outputs: any) => {
-            logger.debug('Agent chain执行结束', { outputs });
-          },
-          handleToolStart: (tool: any, input: any) => {
-            logger.debug(`Agent tool开始执行: ${tool.name}`, { input });
-          },
-          handleToolEnd: (output: any) => {
-            logger.debug('Agent tool执行结束', { output });
-          },
-          handleLLMStart: (_llm: any, prompts: any) => {
-            logger.debug('Agent LLM开始执行', { prompts: `${prompts.slice(0, 50)}...` });
-          },
-          handleLLMEnd: (output: any) => {
-            logger.debug('Agent LLM执行结束', { output });
-          }
-        }
-      ];
-      apiResult = await agent.invoke(input, { callbacks });
-    } else {
-      apiResult = await agent.invoke(input);
-    }
+    const apiResult = await agent.invoke(input, { recursionLimit: 20 });
 
-    return dealWithApiResult(apiResult);
+    return dealWithApiResult(apiResult, this.debug);
   }
 
   async close() {
     if (this.client) {
       await this.client.close();
+      this.agent = null;
     }
   }
 }
