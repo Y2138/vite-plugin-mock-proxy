@@ -8,7 +8,7 @@ function dealWithApiResult(aiResult: any, debug: boolean) {
   if (debug) {
     logger.debug(`本次AI调用次数 ${aiResult.messages.length}`);
     for (const message of aiResult.messages) {
-      logger.debug(`AI返回结果:   ${message.content}`, {message});
+      logger.debug(`AI返回结果:   ${message.content}`);
     }
   }
   const lastContent = aiResult.messages[aiResult.messages.length - 1].content;
@@ -34,9 +34,9 @@ export class LangchainClient {
       // Whether to throw on errors if a tool fails to load (optional, default: true)
       throwOnLoadError: true,
       // Whether to prefix tool names with the server name (optional, default: true)
-      prefixToolNameWithServerName: false,
+      prefixToolNameWithServerName: true,
       // Optional additional prefix for tool names (optional, default: "mcp")
-      additionalToolNamePrefix: "",
+      additionalToolNamePrefix: "mcp",
     
       // Server configuration
       mcpServers: {
