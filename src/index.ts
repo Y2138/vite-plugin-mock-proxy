@@ -57,17 +57,21 @@ export default function vitePluginMockProxy(options: VitePluginMockProxyOptions 
     
     configResolved(resolvedConfig) {
       config = resolvedConfig;
+
+      const envKey = [
+        'AI_MODEL',
+        'AI_SERVICE_URL',
+        'OPENAI_API_KEY',
+        'APIFOX_PROJECT_ID',
+        'APIFOX_BASE_URL',
+        'APIFOX_TOKEN',
+      ];
       
       // 尝试从 Vite 环境变量中获取值，如果插件配置中没有提供
-      if (!finalOptions.env?.AI_MODEL && config.env.VITE_AI_MODEL) {
-        process.env.AI_MODEL = config.env.VITE_AI_MODEL;
-      }
-      if (!finalOptions.env?.AI_SERVICE_URL && config.env.VITE_AI_SERVICE_URL) {
-        process.env.AI_SERVICE_URL = config.env.VITE_AI_SERVICE_URL;
-      }
-      
-      if (!finalOptions.env?.OPENAI_API_KEY && config.env.VITE_OPENAI_API_KEY) {
-        process.env.OPENAI_API_KEY = config.env.VITE_OPENAI_API_KEY;
+      for (const key of envKey) {
+        if (!finalOptions.env?.[key] && config.env[`VITE_${key}`]) {
+          process.env[key] = config.env[`VITE_${key}`];
+        }
       }
     },
     

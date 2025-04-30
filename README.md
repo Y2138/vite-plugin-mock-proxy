@@ -79,8 +79,6 @@ export default defineConfig({
 | statusCheck.codes | number[] | [404] | 认为接口准备好的状态码范围 |
 | statusCheck.methods | string[] | ['GET'] | 认为接口准备好的状态码范围 |
 | env | object | {} | 环境变量配置，用于设置插件运行所需的环境变量 |
-| env.AI_SERVICE_URL | string | undefined | AI 服务 URL |
-| env.OPENAI_API_KEY | string | undefined | OpenAI API 密钥 |
 | debug | boolean | false | 是否启用调试模式 |
 
 ## 环境变量配置
@@ -94,6 +92,9 @@ export default defineConfig({
        AI_MODEL: 'your_model_name',
        AI_SERVICE_URL: 'https://your-ai-service-url',
        OPENAI_API_KEY: 'your-openai-api-key',
+       APIFOX_PROJECT_ID: 'apifox-project-id',
+       APIFOX_BASE_URL: 'apifox-base-url',
+       APIFOX_TOKEN: 'your-apifox-token'
      }
    })
    ```
@@ -105,15 +106,9 @@ export default defineConfig({
    VITE_AI_MODEL=your_model_name,
    VITE_AI_SERVICE_URL=https://your-ai-service-url
    VITE_OPENAI_API_KEY=your-openai-api-key
-   ```
-   
-3. **直接在环境中设置**：
-   你也可以在启动 Vite 开发服务器之前，通过操作系统环境变量或命令行设置：
-   ```bash
-   export VITE_AI_MODEL=your_model_name,
-   export AI_SERVICE_URL=https://your-ai-service-url
-   export OPENAI_API_KEY=your-openai-api-key
-   npm run dev
+   APIFOX_PROJECT_ID=apifox-project-id
+   APIFOX_BASE_URL=apifox-base-url
+   APIFOX_TOKEN=your-apifox-token
    ```
 
 ## 调试插件

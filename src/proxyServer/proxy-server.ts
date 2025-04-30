@@ -110,7 +110,7 @@ export class ProxyServer {
 
               // 开始生成 mock 数据
               logger.debug('开始生成 mock 数据');
-              const mcpClient = LangchainClient.getInstance({ debug });
+              const mcpClient = LangchainClient.getInstance(pluginOptions.mcpServers);
               
               try {
                 // 在返回响应前完成异步操作
